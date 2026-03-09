@@ -1,0 +1,28 @@
+[package]
+name = "context-hub"
+version = "1.0.0"
+description = "ContextHub - AI Chat History Manager"
+authors = ["jwkim1993"]
+edition = "2021"
+
+[lib]
+name = "context_hub_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rusqlite = { version = "0.31", features = ["bundled"] }
+regex = "1"
+chrono = { version = "0.4", features = ["serde"] }
+notify = "7"
+tokio = { version = "1", features = ["full"] }
+walkdir = "2"
+glob = "0.3"
+dirs = "6"
+reqwest = { version = "0.12", features = ["json"] }
