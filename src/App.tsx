@@ -318,13 +318,12 @@ function App() {
       const messages = await getChatMessages(selectedChat.id);
       const result = await summarizeChat(messages);
       const tags = result.tags.join(", ");
-      const title = result.title.trim() || selectedChat.title || "";
 
-      await updateChatSummary(selectedChat.id, result.summary, tags, title);
+      await updateChatSummary(selectedChat.id, result.summary, tags);
       setChats((prev) =>
         prev.map((chat) =>
           chat.id === selectedChat.id
-            ? { ...chat, title, summary: result.summary, tags }
+            ? { ...chat, summary: result.summary, tags }
             : chat,
         ),
       );

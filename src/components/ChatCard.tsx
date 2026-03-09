@@ -108,8 +108,7 @@ export function ChatCard({ chat, index, isExpanded, onToggle, onSummaryUpdated }
     try {
       const msgs = messages.length > 0 ? messages : await getChatMessages(chat.id);
       const result = await summarizeChat(msgs);
-      const title = result.title.trim() || chat.title || "";
-      await updateChatSummary(chat.id, result.summary, result.tags.join(", "), title);
+      await updateChatSummary(chat.id, result.summary, result.tags.join(", "));
       onSummaryUpdated();
     } catch (err) { console.error(err); }
     finally { setIsSummarizing(false); }

@@ -99,19 +99,6 @@ function sanitizeSummary(text: string): string {
     .slice(0, 280);
 }
 
-function sanitizeTitle(text: string): string {
-  const cleaned = text
-    .replace(/```[\s\S]*?```/g, " ")
-    .replace(/["'`]/g, "")
-    .replace(/[^\p{L}\p{N}\s\-/#&:()]/gu, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  if (!cleaned) return "";
-  if (cleaned.length <= 60) return cleaned;
-  return `${cleaned.slice(0, 60).trim()}...`;
-}
-
 function normalizeTag(raw: string): string | null {
   const cleaned = raw
     .toLowerCase()
@@ -148,14 +135,14 @@ function sanitizeTags(input: unknown): string[] {
 
 function summaryLanguageInstruction(lang: Language): string {
   return lang === "ko"
-    ? "Write the title and summary in Korean (한국어)."
-    : "Write the title and summary in English.";
+    ? "Write the summary in Korean (한국어)."
+    : "Write the summary in English.";
 }
 
 export async function summarizeChat(
   messages: MessageRecord[],
   langOverride?: Language,
-): Promise<{ title: string; summary: string; tags: string[] }> {
+): Promise<{ summary: string; tags: string[] }> {
   const apiKey = getApiKey();
   if (!apiKey) {
     throw new Error("Claude API key not configured");
@@ -174,16 +161,15 @@ export async function summarizeChat(
     },
     body: JSON.stringify({
       model: CLAUDE_MODEL,
-      max_tokens: 260,
+      max_tokens: 220,
       messages: [
         {
           role: "user",
           content: `You are extracting stable project memory from an AI coding conversation.
-Return JSON only: {"title":"...","summary":"...","tags":["..."]}.
+Return JSON only: {"summary":"...","tags":["..."]}.
 
 Rules:
 - ${summaryLanguageInstruction(lang)}
-- Title: single short line (max 10 words), summarizing the final task/result.
 - Summary: 1-2 sentences.
 - Keep only the core outcome: problem, root cause, and final fix/decision.
 - Exclude intermediate artifacts: test failures, temporary code attempts, markdown templates, logs, stack traces, command outputs, long code/sql snippets.
@@ -208,12 +194,7 @@ ${conversationText}`,
   const parsed = parseJsonObject(text);
   if (parsed) {
     const summary = sanitizeSummary(typeof parsed.summary === "string" ? parsed.summary : "");
-    const title =
-      sanitizeTitle(typeof parsed.title === "string" ? parsed.title : "") ||
-      sanitizeTitle(summary);
-
     return {
-      title,
       summary,
       tags: sanitizeTags(parsed.tags),
     };
@@ -221,7 +202,6 @@ ${conversationText}`,
 
   const summary = sanitizeSummary(text);
   return {
-    title: sanitizeTitle(summary),
     summary,
     tags: [],
   };
